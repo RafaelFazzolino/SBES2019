@@ -1,2 +1,0 @@
-class CoordinatorsController < ApplicationController
-end
