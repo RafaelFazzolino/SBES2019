@@ -1,0 +1,47 @@
+sudo: true
+env:
+  global:
+    - CC_TEST_REPORTER_ID=690d2b62e0c4304ed271341a2ed1786a41629b5a50c4c4fc4be8fd3ee6a99f33
+language: ruby
+rvm:
+  - 2.5.1
+services:
+  - mysql
+  - docker
+addons:
+  ssh_known_hosts:
+    - 68.183.18.1
+before_script:
+  - cp SIGS/config/database.yml.travis SIGS/config/database.yml
+  - mysql -e 'create database myapp_test;' -u root
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+branches:
+  only:
+  - "/.*/"
+script:
+  - echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
+  - cd SIGS
+  - bundle install
+  - bundle exec rake db:load_config
+  - bundle exec rake db:create
+  - bundle exec rake db:migrate
+  - rake cucumber
+  - bundle exec rspec
+  - rubocop
+after_script:
+  - ../cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+deploy:
+  # Deploy develop on the staging environment
+  - provider: script
+    script: bash ../script/staging-deploy.sh
+    skip_cleanup: true
+    on:
+      branch: develop
+  # Deploy master on the production environment
+  - provider: script
+    script: bash ../script/production-deploy.sh
+    skip_cleanup: true
+    on:
+      branch: master

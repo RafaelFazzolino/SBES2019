@@ -1,0 +1,18 @@
+<h1 class="title-report">Relatório por Turmas</h1>
+<form class="report_school">
+  <input type="radio" name="relatorio" id="to_all" class="all_reports_school_room" checked>
+  <label class="school_room_reports" for='to_all'>Todas</label>
+
+  <input type="radio" name="relatorio" id="to_allocations" class="allocations_reports_school_room">
+  <label class="school_room_reports" for='to_allocations'>Alocadas</label>
+
+  <input type="radio" name="relatorio" id="to_not_allocations" class="no_all_reports_school_room">
+  <label class="school_room_reports" for='to_not_allocations'>Não Alocadas</label>
+
+</form>
+<div class="btn_relatorio_schoolroom">
+  <%= link_to "Gerar Relatório de Todas as Turmas", all_school_rooms_report_path(format: :pdf), {class:"btn btn-success reports_all", target: :blank} %>
+  <%= link_to "Gerar Relatório de Turmas Alocadas", allocated_school_rooms_report_path(format: :pdf), {class:"btn btn-success reports_allocation", target: :blank} %>
+  <%= link_to "Gerar Relatório de Turmas Não Alocadas", unallocated_school_rooms_report_path(format: :pdf), {class:"btn btn-success reports_no_all", target: :blank} %>
+  <br>
+</div>

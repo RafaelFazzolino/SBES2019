@@ -1,0 +1,34 @@
+<div id="adjustment-period-solicitation">
+<h1>Solicitar Alocação</h1>
+<p class="subtitleRequest">Período de Ajuste</p>
+
+<%= render partial: "school_rooms/show", locals: {school_room: @school_room} %>
+
+<%= form_for :solicitation, url: save_adjustment_period_path do |f| %>
+  <%= f.hidden_field :school_room_id, value: params[:school_room_id], readonly: true %>
+  <%= f.hidden_field :wing, value: @wing, readonly: true %>
+
+  <%= f.label :justify, 'Justificativa:' %>
+  <%= f.text_area :justify, class: 'form-control' %>
+
+  <br>
+
+  <table class="hours_table table">
+  </table>
+
+  <strong>Solicitar ao Departamento:</strong>
+  <ul id="departments-check" class="list-unstyled">
+    <%=  collection_check_boxes(:post, :departments, @departments, :id, :name, class: 'form-control' ) do |check| %>
+      <li><%= check.label {check.check_box + check.text } %></li>
+    <% end %>
+  </ul>
+
+  <br>
+
+  <section id="rooms-list">
+  </section>
+
+  <%= f.submit "Enviar", class: 'pull-right btn btn-default btn-success' %>
+
+<% end -%>
+</div>

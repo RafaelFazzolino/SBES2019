@@ -1,0 +1,36 @@
+<h1>Editar Sala</h1>
+
+  <ul id="erro-message">
+    <% @room.errors.messages.values.each do |msg| %>
+      <% msg.each do |m| %>
+        <li><%= m %></li>
+      <%end %>
+    <% end %>
+  </ul>
+
+  <%= form_for @room,:url => {:action=> 'update'} do |room| %>
+    <%= room.label :code, 'Código da Sala' %>
+    <%= room.text_field :code, class: 'form-control', value: @room.code %><br>
+
+    <%= room.label :name, 'Nome' %>
+    <%= room.text_field :name, class: 'form-control', value: @room.name %><br>
+
+    <%= room.label :capacity, 'Capacidade' %>
+    <%= room.text_field :capacity, class: 'form-control', value: @room.capacity %><br>
+
+    <%= room.hidden_field :actual_capacity, value: @room.capacity %>
+
+    <%= room.label :active, 'Ativo' %>
+    <%= room.check_box :active, class: 'form-control',style: 'text-align:left; width: auto' %><br>
+
+    <p> <b> Categorias </b> </p>
+    <div class="checkbox-group">
+      <%= room.collection_check_boxes(:category_ids,all_categories,:id,:name, include_blank: true) do |box| %>
+        <%= box.check_box %>  <%= box.text %> <br>
+      <% end %>
+    </div>
+
+    <div class='actions'>
+      <%= room.submit 'Salvar', class: 'pull-right btn btn-default btn-success' %>
+    </div>
+  <% end %>

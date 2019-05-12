@@ -1,0 +1,95 @@
+.myContainer form {
+  margin: 30px;
+}
+
+.myContainer input[type="text"],
+.myContainer input[type="password"],
+.myContainer select {
+  width: 100%;
+  margin-bottom:20px;
+}
+
+.myContainer input[type="number"] {
+  width: 100px;
+}
+
+.myContainer input[type="date"],
+.myContainer input[type="time"] {
+  width: 150px;
+}
+
+.myContainer input[type="submit"] {
+  width: auto;
+  float: right;
+}
+
+.myContainer form label {
+  font-weight: normal;
+  margin: 0;
+}
+
+.myContainer form fieldset {
+  margin: 20px;
+}
+
+.myContainer .checkbox-group label{
+  margin-left: 10px;
+  width: calc(100% - 30px);
+}
+
+.btn {
+  border-radius: 50%;
+}
+
+.actions {
+  margin-top: 10px;
+}
+
+.main-container  {
+  width: 100%;
+  display: inline-flex;
+}
+
+.main-container .actions {
+  margin-top: 30px;
+}
+
+.formSection {
+  display: flex;
+}
+
+.radioButton {
+  display: flex;
+
+  input[type="radio"] {
+    width: auto;
+    margin-right: 10px;
+  }
+}
+
+.short_input {
+  max-width: 50%;
+}
+
+.short_input select{
+  margin-left: 10px;
+}
+
+.day_button{
+  width: 140px;
+}
+
+
+/*Time Grid*/
+
+.time_grid th {
+  width: 10%;
+}
+
+.time_grid td {
+  width: 15%;
+}
+
+.time_grid td:hover {
+  background-color: inherit;
+}

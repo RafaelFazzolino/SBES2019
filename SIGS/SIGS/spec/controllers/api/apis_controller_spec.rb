@@ -1,0 +1,100 @@
+require 'rails_helper'
+require 'json'
+
+RSpec.describe Api::ApisController, type: :controller do
+	describe 'Test methods of API Controller' do
+		before(:each) do
+			@user = User.create(name: 'Caio Filipe', email: 'coordenador@unb.br', cpf: '05012345678', registration: '1234567', active: true, password: '123456')
+			SECRET ||= '$2a$10$reXHMgegkckEKlceQ.0S5u/L44tbhU46C8TCdSn8HOePlEvnGYTI.'
+			TOKEN ||= 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiQW5hIFBhdWxhIENoYXZlcyIsImVtYWlsIjoiYW5hcGF1bGEuY2hhdmVzQGdtYWlsLmNvbSJ9.2ZOfSu2AbDH6EdIblImBG5ciVoXogLlXvUaWJAz17qc'
+			TOKEN_2 ||= 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiR3VzdGF2byBGcmVpcmUgT2xpdmVpcmEiLCJlbWFpbCI6ImZyZWlyZS5vbGl2ZWlyYUBob3RtYWlsLmNvbSJ9.vNfwaSxpdVosGsnaS06JWt9NtMoAkOqwnjWcIAnFCy4'
+			@api_user = ApiUser.create(name: 'Ana Paula Chaves', email: 'anapaula.chaves@gmail.com', secret: SECRET, token: TOKEN, user: @user)
+			@campus = Campus.create(name: 'Gama')
+			@department = Department.create(code: '789', name: 'Engenharia', wing: 'SUL', campus_id: @campus.id)
+			@category = Category.create(name: 'Laboratório Químico')
+			@building = Building.create(code: 'pjc', name: 'Pavilhão João Calmon', wing: 'NORTE')
+			@room = Room.create(code: '124325', name: 'S10', capacity: 50, active: true, time_grid_id: 1, department: @department, building: @building, category_ids: [@category.id])
+			@room2 = Room.create(code: '124325', name: 'S9', capacity: 50, active: true, time_grid_id: 1, department: @department, building: @building, category_ids: [@category.id])
+      @discipline = Discipline.create(name: 'Análise Combinatória', code: '123', department: @department)
+			@course = Course.create(name:'Matemática', code: '009', department: @department)
+			@course_2 = Course.create(code: '12', name: 'Engenharia Eletrônica', department: @department, shift: 1)
+			@school_room = SchoolRoom.create(name:"YY", vacancies: 50, discipline: @discipline, course_ids: [@course.id])
+      @school_room2 = SchoolRoom.create(name:'B', discipline: @discipline, vacancies: 40, courses: [@course_2])
+			@allocation = Allocation.create(user_id: @user.id, room_id: @room.id, school_room_id: @school_room.id, day: "Segunda", start_time: '14:00:00', final_time: '16:00:00', active: true)
+			@allocation2 = Allocation.create(user_id: @user.id, room_id: @room2.id, school_room_id: @school_room2.id, day: "Segunda", start_time: '14:00:00', final_time: '16:00:00', active: true)
+			@request.env['HTTP_ACCEPT'] = 'application/vnd.api+json'
+			@request.env['HTTP_AUTHORIZATION'] = 'Token ' + @api_user.token
+		end
+
+		it 'should return the all rooms json' do
+			get :all_rooms, params: { default: { format: :json } }
+			expect(response).to have_http_status(200)
+			expect(JSON.parse(response.body)) == @room.to_json
+		end
+
+		it 'should return HTTP Token denied' do
+			@request.env['HTTP_AUTHORIZATION'] = 'Token ' + TOKEN_2
+			get :all_rooms, params: { default: { format: :json } }
+			expect(response).to have_http_status(401)
+		end
+
+		it 'should return buildings in allocations' do
+			get :buildings, params: { code: @building.code, default: { format: :json} }
+			expect(response).to have_http_status(200)
+		end
+
+		it 'should return HTTP Token denied for buildings' do
+			@request.env['HTTP_AUTHORIZATION'] = 'Token ' + TOKEN_2
+			get :buildings, params: { code: @building.code, default: { format: :json} }
+			expect(response).to have_http_status(401)
+		end
+
+		it 'should get json response all scholl_rooms' do
+		  get :all_school_room, params: { default: { format: :json } }
+		  expect(response).to have_http_status(200)
+		end
+
+		it 'should return allocations by discipline' do
+			get :discipline_allocations, params: { default: { format: :json }, code: @discipline.code }
+			allocations = [@allocation, @allocation2]
+			expect(response).to have_http_status(200)
+			expect(JSON.parse(response.body)) == allocations.to_json
+		end
+
+		it 'should not find discipline' do
+			get :discipline_allocations, params: { default: { format: :json }, code: '456' }
+			expect(response).to have_http_status(200)
+			expect(response) == 'Nenhuma disciplina encontrada com esse código.'
+		end
+
+		it 'should return allocations by department' do
+			get :department_allocations, params: { default: { format: :json }, code: '789' }
+			allocations = [@allocation, @allocation2]
+			expect(response).to have_http_status(200)
+			expect(JSON.parse(response.body)) == allocations.to_json
+		end
+
+		it 'should not find allocations by department' do
+			get :department_allocations, params: { default: { format: :json }, code: '456' }
+			expect(response).to have_http_status(200)
+			expect(response) == 'Nenhum departamento encontrado com esse código.'
+		end
+
+		it 'should get json response school_rooms_of_room' do
+			get :school_rooms_of_room, params: { code: '124325', default: { format: :json } }
+			expect(response).to have_http_status(200)
+		end
+
+		it 'should get allocations of school_room' do
+			get :school_rooms_of_room, params: { code: '124325', default: { format: :json } }
+			teste = [@allocation, @allocation2]
+			expect(JSON.parse(response.body)) == teste.to_json
+		end
+
+		it 'should get allocations of all school_room' do
+			get :all_school_room, params: { default: { format: :json } }
+			expect(response).to have_http_status(200)
+			#expect(JSON.parse(response.body)) == teste.to_json
+		end
+	end
+end
